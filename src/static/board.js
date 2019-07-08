@@ -110,7 +110,7 @@ function Board(canvas, fps) {
                 break;
             case "down":
                 if (this.positions[x][y][1] < y) {
-                    this.positions[x][y][1] = (this.positions[x][y][1] + y) / 2 - 0.01;
+                    this.positions[x][y][1] = (this.positions[x][y][1] + y) / 2 + 0.01;
                     setTimeout(this.animate, 1000 / this.fps, x, y, direction);
                 } else if (this.positions[x][y][1] > y)
                     this.positions[x][y][1] = y;
@@ -124,7 +124,7 @@ function Board(canvas, fps) {
                 break;
             case "right":
                 if (this.positions[x][y][0] < x) {
-                    this.positions[x][y][0] = (this.positions[x][y][0] + x) / 2 - 0.01;
+                    this.positions[x][y][0] = (this.positions[x][y][0] + x) / 2 + 0.01;
                     setTimeout(this.animate, 1000 / this.fps, x, y, direction);
                 } else if (this.positions[x][y][0] > x)
                     this.positions[x][y][0] = x;
