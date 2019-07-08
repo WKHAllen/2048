@@ -21,6 +21,8 @@ const colors = {
     131072: "#070707"
 };
 
+const localHSName = "2048HS";
+
 function Board(canvas, fps) {
     this.canvas = canvas;
     this.fps = fps;
@@ -39,11 +41,7 @@ function Board(canvas, fps) {
         this.tiles[i] = new Array(4);
     for (let i = 0; i < 4; i++)
         for (let j = 0; j < 4; j++)
-            if (i % 2 == 0) // remove
-                this.tiles[i][j] = Math.pow(2, i * 4 + j + 1); // this.tiles[i][j] = emptyTile;
-            else // remove
-                this.tiles[i][3 - j] = Math.pow(2, i * 4 + j + 1); // remove
-    this.tiles[0][0] = 4; // remove
+            this.tiles[i][j] = emptyTile;
     this.positions = new Array(4);
     for (let i = 0; i < 4; i++)
         this.positions[i] = new Array(4);
@@ -56,6 +54,30 @@ function Board(canvas, fps) {
     for (let i = 0; i < 4; i++)
         for (let j = 0; j < 4; j++)
             this.newTiles[i][j] = false;
+
+    this.getHighScore = (function() {
+        let highScore = parseInt(localStorage.getItem(localHSName));
+        if (!highScore)
+            highScore = 0;
+        return highScore;
+    }).bind(this);
+
+    this.saveHighScore = (function(highScore) {
+        localStorage.setItem(localHSName, highScore);
+    }).bind(this);
+
+    this.updateHighScore = (function() {
+        document.getElementById("highscore").innerHTML = `Highscore: ${this.highScore}`;
+    }).bind(this);
+
+    this.updateScore = (function() {
+        document.getElementById("score").innerHTML = `Score: ${this.score}`;
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            this.saveHighScore(this.highScore);
+            this.updateHighScore();
+        }
+    }).bind(this);
 
     this.countSpacesRemaining = (function() {
         let spaces = 0;
@@ -143,6 +165,7 @@ function Board(canvas, fps) {
                         this.animate(i, j - 1, "up");
                     } else if (this.tiles[i][j] !== emptyTile && this.tiles[i][j - 1] === this.tiles[i][j] && !this.newTiles[i][j] && !this.newTiles[i][j - 1]) {
                         this.score += this.tiles[i][j] * 2;
+                        this.updateScore();
                         this.tiles[i][j - 1] = this.tiles[i][j] * 2;
                         this.tiles[i][j] = emptyTile;
                         this.positions[i][j - 1][1] = this.positions[i][j][1];
@@ -165,6 +188,7 @@ function Board(canvas, fps) {
                         this.animate(i, j + 1, "down");
                     } else if (this.tiles[i][j] !== emptyTile && this.tiles[i][j + 1] === this.tiles[i][j] && !this.newTiles[i][j] && !this.newTiles[i][j + 1]) {
                         this.score += this.tiles[i][j] * 2;
+                        this.updateScore();
                         this.tiles[i][j + 1] = this.tiles[i][j] * 2;
                         this.tiles[i][j] = emptyTile;
                         this.positions[i][j + 1][1] = this.positions[i][j][1];
@@ -187,6 +211,7 @@ function Board(canvas, fps) {
                         this.animate(i - 1, j, "left");
                     } else if (this.tiles[i][j] !== emptyTile && this.tiles[i - 1][j] === this.tiles[i][j] && !this.newTiles[i][j] && !this.newTiles[i - 1][j]) {
                         this.score += this.tiles[i][j] * 2;
+                        this.updateScore();
                         this.tiles[i - 1][j] = this.tiles[i][j] * 2;
                         this.tiles[i][j] = emptyTile;
                         this.positions[i - 1][j][0] = this.positions[i][j][0];
@@ -209,6 +234,7 @@ function Board(canvas, fps) {
                         this.animate(i + 1, j, "right");
                     } else if (this.tiles[i][j] !== emptyTile && this.tiles[i + 1][j] === this.tiles[i][j] && !this.newTiles[i][j] && !this.newTiles[i + 1][j]) {
                         this.score += this.tiles[i][j] * 2;
+                        this.updateScore();
                         this.tiles[i + 1][j] = this.tiles[i][j] * 2;
                         this.tiles[i][j] = emptyTile;
                         this.positions[i + 1][j][0] = this.positions[i][j][0];
@@ -225,4 +251,7 @@ function Board(canvas, fps) {
             for (let j = 0; j < 4; j++)
                 this.newTiles[i][j] = false;
     }).bind(this);
+    
+    this.highScore = this.getHighScore();
+    this.updateHighScore();
 }
