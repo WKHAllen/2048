@@ -14,4 +14,4 @@ The project makes use of electron, so to launch it one can run the following com
 $ npm start
 ```
 
-It can, however, be used without electron (i.e. in a standard webpage). All necessary items for use in a webpage are in /src/static
+It can, however, be used without electron (i.e. in a standard webpage). All necessary items for use in a webpage are in `/src/static`. For a demo of this, see [my website](https://wkhallen.com/2048/).
