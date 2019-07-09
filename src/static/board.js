@@ -88,6 +88,29 @@ function Board(canvas, fps) {
         return spaces;
     }).bind(this);
 
+    this.neighbors = (function(x, y) {
+        let nearby = [];
+        if (x > 0)
+            nearby.push(this.tiles[x - 1][y]);
+        if (x < 3)
+            nearby.push(this.tiles[x + 1][y]);
+        if (y > 0)
+            nearby.push(this.tiles[x][y - 1]);
+        if (y < 3)
+            nearby.push(this.tiles[x][y + 1]);
+        return nearby;
+    }).bind(this);
+
+    this.canMove = (function() {
+        if (this.countSpacesRemaining() > 0)
+            return true;
+        for (let i = 0; i < 4; i++)
+            for (let j = 0; j < 4; j++)
+                if (this.neighbors(i, j).includes(this.tiles[i][j]))
+                    return true;
+        return false;
+    }).bind(this);
+
     this.newTile = (function() {
         if (this.countSpacesRemaining() === 0)
             throw "no space for new tile";
@@ -251,7 +274,16 @@ function Board(canvas, fps) {
             for (let j = 0; j < 4; j++)
                 this.newTiles[i][j] = false;
     }).bind(this);
-    
+
+    this.reset = (function() {
+        this.score = 0;
+        this.updateScore();
+        for (let i = 0; i < 4; i++)
+            for (let j = 0; j < 4; j++)
+                this.tiles[i][j] = emptyTile;
+        this.newTile();
+    }).bind(this);
+
     this.highScore = this.getHighScore();
     this.updateHighScore();
 }

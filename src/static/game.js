@@ -1,3 +1,5 @@
+var game;
+
 function arrayClone(arr) {
     let clone = [];
     for (let i = 0; i < arr.length; i++) {
@@ -18,9 +20,11 @@ function arraysEqual(arr1, arr2) {
 
 class Game {
     constructor(fps) {
-        this.board = new Board(document.getElementById("game"), fps);
+        this.playing = true;
+        this.fps = fps;
+        this.board = new Board(document.getElementById("game"), this.fps);
         document.addEventListener("keydown", (event) => this.keyPress(event));
-        setInterval(this.board.draw, 1000 / fps);
+        this.drawInterval = setInterval(this.board.draw, 1000 / this.fps);
     }
 
     move(keyCode) {
@@ -44,19 +48,37 @@ class Game {
     }
 
     keyPress(event) {
-        if ([37, 38, 39, 40].includes(event.keyCode)) {
+        if (this.playing && [37, 38, 39, 40].includes(event.keyCode)) {
             if (this.move(event.keyCode)) {
-                if (this.board.countSpacesRemaining() !== 0) {
+                if (this.board.countSpacesRemaining() > 0) {
                     this.board.newTile();
-                } else { // check if move can be made
-                    // game over
                 }
             }
+            if (!this.board.canMove()) {
+                this.gameOver();
+            }
         }
+    }
+
+    gameOver() {
+        this.playing = false;
+        setTimeout((function() {
+            clearInterval(this.drawInterval);
+            this.board.ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            this.board.ctx.fillRect(0, 0, this.board.canvas.width, this.board.canvas.height);
+            document.getElementById("play-again").classList.remove("invisible");
+        }).bind(this), 1000);
+    }
+
+    playAgain() {
+        document.getElementById("play-again").classList.add("invisible");
+        this.board.reset();
+        this.drawInterval = setInterval(this.board.draw, 1000 / this.fps);
+        this.playing = true;
     }
 }
 
 window.addEventListener("load", function() {
-    let game = new Game(30);
+    game = new Game(30);
     game.board.newTile();
 });
