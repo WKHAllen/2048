@@ -1,24 +1,24 @@
 const emptyTile = 1;
-const emptyColor = "#ffffff";
+const emptyColor = "rgba(255, 255, 255, 1)";
 
 const colors = {
-    2: "#afafaf",
-    4: "#af8f7f",
-    8: "#ffaf3f",
-    16: "#ff7f1f",
-    32: "#ff4f00",
-    64: "#ff0000",
-    128: "#ff4f00",
-    256: "#ff7f3f",
-    512: "#ff9f4f",
-    1024: "#ff9f2f",
-    2048: "#ff9f00",
-    4096: "#cf9f00",
-    8192: "#cf6f1f",
-    16384: "#af6f3f",
-    32768: "#5f4f3f",
-    65536: "#1f1f1f",
-    131072: "#070707"
+    2: "rgba(175, 175, 175, {})",
+    4: "rgba(175, 143, 127, {})",
+    8: "rgba(255, 175, 63, {})",
+    16: "rgba(255, 127, 31, {})",
+    32: "rgba(255, 79, 0, {})",
+    64: "rgba(255, 0, 0, {})",
+    128: "rgba(255, 79, 0, {})",
+    256: "rgba(255, 127, 63, {})",
+    512: "rgba(255, 159, 79, {})",
+    1024: "rgba(255, 159, 47, {})",
+    2048: "rgba(255, 159, 0, {})",
+    4096: "rgba(207, 159, 0, {})",
+    8192: "rgba(207, 111, 31, {})",
+    16384: "rgba(175, 111, 63, {})",
+    32768: "rgba(95, 79, 63, {})",
+    65536: "rgba(31, 31, 31, {})",
+    131072: "rgba(7, 7, 7, {})"
 };
 
 const localHSName = "2048HS";
@@ -32,6 +32,7 @@ function Board(canvas, fps) {
     this.border = 4;
     this.borderColor = "black";
     this.textColor = "white";
+    this.transparencySpeed = 0.1;
     this.tileWidth = (this.canvas.width - (this.border * 5)) / 4;
     this.tileHeight = (this.canvas.height - (this.border * 5)) / 4;
     this.ctx.font = Math.min(this.tileWidth, this.tileHeight) / 4 + "px Arial";
@@ -48,6 +49,12 @@ function Board(canvas, fps) {
     for (let i = 0; i < 4; i++)
         for (let j = 0; j < 4; j++)
             this.positions[i][j] = [i, j];
+    this.transparencies = new Array(4);
+    for (let i = 0; i < 4; i++)
+        this.transparencies[i] = new Array(4);
+    for (let i = 0; i < 4; i++)
+        for (let j = 0; j < 4; j++)
+            this.transparencies[i][j] = 1;
     this.newTiles = new Array(4);
     for (let i = 0; i < 4; i++)
         this.newTiles[i] = new Array(4);
@@ -121,9 +128,13 @@ function Board(canvas, fps) {
             y = Math.floor(Math.random() * 4);
         } while (this.tiles[x][y] !== emptyTile);
         this.tiles[x][y] = (Math.floor(Math.random() * 2) + 1) * 2;
+        this.transparencies[x][y] = 0;
+        this.animateNewTile(x, y);
     }).bind(this);
 
-    this.drawTile = (function(x, y, color, text) {
+    this.drawTile = (function(x, y) {
+        let text = this.tiles[x][y];
+        let color = colors[this.tiles[x][y]].replace("{}", this.transparencies[x][y]);
         let position = this.positions[x][y];
         this.ctx.fillStyle = color;
         this.ctx.fillRect(this.border * (x + 1) + this.tileWidth * position[0], this.border * (y + 1) + this.tileHeight * position[1], this.tileWidth, this.tileHeight);
@@ -139,7 +150,7 @@ function Board(canvas, fps) {
                 this.ctx.fillStyle = emptyColor;
                 this.ctx.fillRect(this.border * (i + 1) + this.tileWidth * i, this.border * (j + 1) + this.tileHeight * j, this.tileWidth, this.tileHeight);
                 if (this.tiles[i][j] !== emptyTile)
-                    this.drawTile(i, j, colors[this.tiles[i][j]], this.tiles[i][j]);
+                    this.drawTile(i, j);
             }
         }
     }).bind(this);
@@ -174,6 +185,15 @@ function Board(canvas, fps) {
                 } else if (this.positions[x][y][0] > x)
                     this.positions[x][y][0] = x;
                 break;
+        }
+    }).bind(this);
+
+    this.animateNewTile = (function(x, y) {
+        if (this.transparencies[x][y] < 1) {
+            this.transparencies[x][y] += this.transparencySpeed;
+            setTimeout(this.animateNewTile, 1000 / this.fps, x, y);
+        } else {
+            this.transparencies[x][y] = 1;
         }
     }).bind(this);
 
