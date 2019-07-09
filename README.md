@@ -8,7 +8,7 @@ The goal of the game is to reach the 2048 tile, which can be achieved by combini
 
 ## Usage
 
-The project makes use of electron, so to launch it one can navigate to the `src` directory and run the following command:
+The project makes use of electron, so to launch it one can run the following command:
 
 ```console
 $ npm start
