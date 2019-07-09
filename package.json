@@ -2,9 +2,9 @@
   "name": "2048",
   "version": "0.1.0",
   "description": "2048 made using JavaScript",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron src/main.js"
   },
   "author": "Will Allen",
   "license": "MIT",
